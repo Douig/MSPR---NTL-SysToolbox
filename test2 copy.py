@@ -30,12 +30,12 @@ def option_1():
 
     choix = input("\nNuméro de la table à afficher : ")
     if not choix.isdigit() or not (1 <= int(choix) <= len(tables)):
-        print("❌ Numéro invalide.")
+        print(" Numéro invalide.")
         return
 
     table = tables[int(choix)-1]
 
-    print(f"\n📌 Contenu de `{table}` :\n")
+    print(f"\n Contenu de `{table}` :\n")
     mycursor.execute(f"SELECT * FROM {table}")
     for row in mycursor.fetchall():
         print(row)
@@ -54,7 +54,7 @@ def option_2():
 
     choix = input("\nNuméro de la table à sauvegarder : ")
     if not choix.isdigit() or not (1 <= int(choix) <= len(tables)):
-        print("❌ Numéro invalide.")
+        print(" Numéro invalide.")
         return
 
     table = tables[int(choix)-1]
@@ -71,7 +71,7 @@ def option_2():
             values = ", ".join(f"'{str(v)}'" for v in row)
             f.write(f"INSERT INTO {table} VALUES ({values});\n")
 
-    print(f"\n📁 Table sauvegardée : {filename}")
+    print(f"\n Table sauvegardée : {filename}")
 
 
 # ================================================
@@ -96,7 +96,7 @@ def option_3():
                 f.write(f"INSERT INTO {table} VALUES ({values});\n")
             f.write("\n\n")
 
-    print(f"\n📁 Sauvegarde SQL complète : {filename}")
+    print(f"\n Sauvegarde SQL complète : {filename}")
 
 
 # ================================================
