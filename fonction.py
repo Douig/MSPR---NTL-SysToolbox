@@ -1,3 +1,4 @@
+from module_systeme import monitor_system
 def menu_diagnostics():
     """
     Ceci est le sous-menu. On y reste tant qu'on ne demande pas le retour.
@@ -15,7 +16,7 @@ def menu_diagnostics():
         if sub_choix == "1":
             print("Lancement du check Hardware...")
             # Ici tu appelleras plus tard ta fonction get_system_metrics()
-            
+            monitor_system()
         elif sub_choix == "2":
             print("Vérification MySQL...")
             
