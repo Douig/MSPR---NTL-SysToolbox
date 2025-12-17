@@ -1,32 +1,56 @@
-from module_systeme import monitor_system
+# Fichier : fonction.py
+from module_systeme import monitor_linux, monitor_windows
+from module_bdd import generate_status_json, save_json_report 
+
 def menu_diagnostics():
-    """
-    Ceci est le sous-menu. On y reste tant qu'on ne demande pas le retour.
-    """
     sous_running = True
+    
     while sous_running:
         print("\n--- DIAGNOSTIC SYSTEME ---")
-        print("1. Supervision Hardware Linux (CPU/RAM)")
-        print("2. Statut MySQL")
+        print("1. Supervision Hardware (Choix OS)")
+        print("2. Statut Base de Données (JSON)")
         print("3. Test AD/DNS")
-        print("4. Retour au menu principal")
+        print("4. Retour")
+        print("--------------------------")
         
-        sub_choix = input(">> ")
+        sub_choix = input(">> ").lower()
 
         if sub_choix == "1":
-            print("Lancement du check Hardware...")
-            # Ici tu appelleras plus tard ta fonction get_system_metrics()
-            monitor_system()
+            # Sous-menu sélection OS
+            print("\nCible de l'analyse :")
+            print("1. Linux")
+            print("2. Windows (Placeholder)")
+            print("3. Annuler")
+            
+            os_choix = input(">> ")
+            
+            if os_choix == "1":
+                monitor_linux()
+            elif os_choix == "2":
+                monitor_windows()
+            elif os_choix == "3":
+                pass
+            else:
+                print("Choix invalide.")
+            
         elif sub_choix == "2":
-            print("Vérification MySQL...")
+            # Génération et sauvegarde rapport JSON
+            print("\n--- STATUT MYSQL (JSON) ---")
+            json_output = generate_status_json()
+            print(json_output)
+            
+            save = input("\nSauvegarder ? (o/n) : ")
+            if save.lower() == "o":
+                fichier = save_json_report(json_output)
+                if fichier:
+                    print(f"Sauvegarde : {fichier}")
+            input("\nEntrée pour continuer...")
             
         elif sub_choix == "3":
-            print("Test Réseau...")
+            print("Module Réseau non implémenté.")
             
         elif sub_choix == "4":
-            print("Retour...")
-            return  # <--- C'est la clé ! Ça arrête la fonction et revient au code principal
+            return 
             
         else:
-            print("Choix invalide.")
-
+            print("Saisie invalide.")
