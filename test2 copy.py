@@ -119,10 +119,10 @@ def main_menu():
         elif choix == "3":
             option_3()
         elif choix == "0":
-            print("👋 Bye !")
+            print(" Bye !")
             break
         else:
-            print("❌ Choix invalide.")
+            print("Choix invalide.")
 
 
 if __name__ == "__main__":
