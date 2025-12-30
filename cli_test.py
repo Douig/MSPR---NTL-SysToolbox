@@ -1,33 +1,31 @@
-from Version_Windows import get_windows_version
-from Uptime_Windows import get_windows_uptime
-from Ressources import get_resource_usage
+﻿from windows_diagnostic import (
+    get_windows_version,
+    get_windows_uptime,
+    get_resource_usage,
+    generate_diagnostic_json
+)
 from Services_status import get_service_status
-
 
 
 def menu():
     while True:
-        print("\n--- NTL SysToolbox - Diagnostic Windows ---")
-        print("1) Vérifier la version du système Windows")
-        print("2) Vérifier l’uptime Windows")
-        print("3) Vérifier l’utilisation des ressources")
-        print("4) vérifier le statut des services AD/DNS")
+        print("\n--- NTL SysToolbox ---")
+        print("1) Diagnostic Windows")
+        print("2) Diagnostic AD/DNS")
         print("q) Quitter")
-        
         
         choix = input("Choix : ").strip().lower()
 
         if choix == "1":
-            get_windows_version()  # Appel de fonction Version
+            print("\n--- Diagnostic Windows ---")
+            get_windows_version()
+            get_windows_uptime()
+            get_resource_usage()
+            generate_diagnostic_json()
             
         elif choix == "2":
-            get_windows_uptime()   # Appel de fonction Uptime
-            
-        elif choix == "3":
-            get_resource_usage()   # Appel de fonction des ressources 
-            
-        elif choix == "4":
-            status_dns, status_ntds = get_service_status()  #Appel de fonction des status de services
+            print("\n--- Diagnostic AD/DNS ---")
+            status_dns, status_ntds = get_service_status()
             print(f"Status DNS: {status_dns}")
             print(f"Status NTDS: {status_ntds}")
             
