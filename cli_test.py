@@ -2,7 +2,6 @@
     get_windows_version,
     get_windows_uptime,
     get_resource_usage,
-    generate_diagnostic_json
 )
 from Services_status import get_service_status
 
@@ -21,7 +20,6 @@ def menu():
             get_windows_version()
             get_windows_uptime()
             get_resource_usage()
-            generate_diagnostic_json()
             
         elif choix == "2":
             print("\n--- Diagnostic AD/DNS ---")

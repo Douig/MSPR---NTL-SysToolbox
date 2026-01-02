@@ -2,6 +2,7 @@ import subprocess
 
 def get_service_status():
     
+    
     try:
         command1 = ["powershell", "-Command", "(Get-Service -Name 'DNS' -ErrorAction SilentlyContinue).Status"]
         command2 = ["powershell", "-Command", "(Get-Service -Name 'NTDS' -ErrorAction SilentlyContinue).Status"]
