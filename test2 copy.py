@@ -1,6 +1,20 @@
 import mysql.connector
 import datetime
 import os
+import json
+
+
+#partie json : 
+
+def output_json(module, code, message, data=None):
+    print(json.dumps({
+        "timestamp": datetime.datetime.now().isoformat(),
+        "module": module,
+        "code": code,
+        "message": message,
+        "data": data or {}
+    }, ensure_ascii=False))
+
 
 # Connexion à la base 
 mydb = mysql.connector.connect(
@@ -23,6 +37,7 @@ def ts():
     return datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
 # OPTION 1 : AFFICHER UNE TABLE
+
 def option_1():
     mycursor.execute("SHOW TABLES")
     tables = [t[0] for t in mycursor.fetchall()]
@@ -33,7 +48,7 @@ def option_1():
 
     choix = input("\nNuméro de la table à afficher : ")
     if not choix.isdigit() or not (1 <= int(choix) <= len(tables)):
-        print("Numéro invalide.")
+        output_json("backup_sql", 1, "Numéro invalide") 
         return
 
     table = tables[int(choix)-1]
@@ -47,6 +62,7 @@ def option_1():
 # ================================================
 # OPTION 2 : SAUVEGARDER UNE TABLE (SQL)
 # ================================================
+
 def option_2():
     mycursor.execute("SHOW TABLES")
     tables = [t[0] for t in mycursor.fetchall()]
@@ -57,7 +73,7 @@ def option_2():
 
     choix = input("\nNuméro de la table à sauvegarder : ")
     if not choix.isdigit() or not (1 <= int(choix) <= len(tables)):
-        print(" Numéro invalide.")
+        output_json("backup_sql", 1, "Numéro invalide") 
         return
 
     table = tables[int(choix)-1]
@@ -74,7 +90,7 @@ def option_2():
             values = ", ".join(f"'{str(v)}'" for v in row)
             f.write(f"INSERT INTO {table} VALUES ({values});\n")
 
-    print(f"\n Table sauvegardée : {filename}")
+    output_json("backup_sql", 0, "Table sauvegardée", {"table": table, "file": filename})  
 
 
 # ================================================
@@ -99,7 +115,7 @@ def option_3():
                 f.write(f"INSERT INTO {table} VALUES ({values});\n")
             f.write("\n\n")
 
-    print(f"\n Sauvegarde complète : {filename}")
+    output_json("backup_sql", 0, "Sauvegarde complète réussie", {"file": filename})
 
 
 # ================================================

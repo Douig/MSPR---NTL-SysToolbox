@@ -1,6 +1,23 @@
 import mysql.connector
 import os
 import csv
+import json
+import datetime
+
+
+
+# partie json : 
+
+def output_json(module, code, message, data=None):
+    print(json.dumps({
+        "timestamp": datetime.datetime.now().isoformat(),
+        "module": module,
+        "code": code,
+        "message": message,
+        "data": data or {}
+    }, ensure_ascii=False))
+
+
 
 # Connexion à la base MySQL
 try:
@@ -12,7 +29,7 @@ try:
     )
     mycursor = mydb.cursor()
 except mysql.connector.Error as err:
-    print(f"Erreur de connexion : {err}")
+    output_json("export_csv", 2, f"Erreur de connexion : {err}")  # retour en cas d'erreur
     exit(1)
 
 
@@ -31,7 +48,7 @@ def export_table_csv():
         tables = [t[0] for t in mycursor.fetchall()]
 
         if not tables:
-            print("Aucune table trouvée.")
+            output_json("export_csv", 1, "Aucune table trouvée")  
             return 1
 
         # Affichage des tables
@@ -41,7 +58,7 @@ def export_table_csv():
         choix = input("\nNuméro de la table : ")
 
         if not choix.isdigit() or not (1 <= int(choix) <= len(tables)):
-            print("Choix invalide.")
+            output_json("export_csv", 1, "Choix invalide")  # AJOUT JSON
             return 1
 
         table = tables[int(choix) - 1]
@@ -63,11 +80,16 @@ def export_table_csv():
             # Données
             writer.writerows(mycursor.fetchall())
 
-        print(f"Export terminé : {fichier_csv}")
+        output_json(
+            "export_csv",
+            0,
+            "Export terminé",
+            {"table": table, "file": fichier_csv}
+        )
         return 0
 
     except Exception as e:
-        print(f"Erreur export : {e}")
+        output_json("export_csv", 2, f"Erreur export : {e}") 
         return 1
 
 
