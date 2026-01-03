@@ -9,8 +9,7 @@ def menu_diagnostics():
         print("\n--- DIAGNOSTIC SYSTEME ---")
         print("1. Supervision Hardware (Choix OS)")
         print("2. Statut Base de Données (JSON)")
-        print("3. Test AD/DNS")
-        print("4. Retour")
+        print("3. Retour")
         print("--------------------------")
         
         sub_choix = input(">> ").lower()
@@ -47,9 +46,6 @@ def menu_diagnostics():
             input("\nEntrée pour continuer...")
             
         elif sub_choix == "3":
-            print("Module Réseau non implémenté.")
-            
-        elif sub_choix == "4":
             return 
             
         else:
