@@ -1,0 +1,6 @@
+.gitignore
+venv/
+exports_csv_wms/
+backups_sql/
+__pycache__/
+rapports_json/
