@@ -8,8 +8,7 @@ def menu_diagnostics():
     while sous_running:
         print("\n--- DIAGNOSTIC SYSTEME ---")
         print("1. Supervision Hardware (Choix OS)")
-        print("2. Statut Base de Données (JSON)")
-        print("3. Retour")
+        print("2. Retour")
         print("--------------------------")
         
         sub_choix = input(">> ").lower()
@@ -33,19 +32,6 @@ def menu_diagnostics():
                 print("Choix invalide.")
             
         elif sub_choix == "2":
-            # Génération et sauvegarde rapport JSON
-            print("\n--- STATUT MYSQL (JSON) ---")
-            json_output = generate_status_json()
-            print(json_output)
-            
-            save = input("\nSauvegarder ? (o/n) : ")
-            if save.lower() == "o":
-                fichier = save_json_report(json_output)
-                if fichier:
-                    print(f"Sauvegarde : {fichier}")
-            input("\nEntrée pour continuer...")
-            
-        elif sub_choix == "3":
             return 
             
         else:

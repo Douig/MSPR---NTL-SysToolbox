@@ -4,10 +4,10 @@ import time
 import os
 import subprocess
 import json
-from datetime import datetime
+import datetime 
 
 # ==========================================
-# PARTIE 1 : LINUX (Fonctionne avec psutil)
+# PARTIE 1 : LINUX (Mise à jour avec Export JSON)
 # ==========================================
 def monitor_linux():
     print("\n--- ANALYSE SYSTEME LINUX ---")
@@ -33,14 +33,35 @@ def monitor_linux():
 
     # 3. METRIQUES
     cpu_usage = psutil.cpu_percent(interval=1)
+    
     ram = psutil.virtual_memory()
     ram_total = round(ram.total / (1024**3), 2)
     ram_used = round(ram.used / (1024**3), 2)
+    
     disk = psutil.disk_usage('/')
     disk_total = round(disk.total / (1024**3), 2)
     disk_used = round(disk.used / (1024**3), 2)
 
-    # AFFICHAGE
+    # --- CONSTRUCTION DU DICTIONNAIRE DE DONNÉES ---
+    # CORRECTION ICI : datetime.datetime.now()
+    data_report = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "os_info": {
+            "name": os_name,
+            "kernel": os_release
+        },
+        "uptime": {
+            "heures": heures,
+            "minutes": minutes
+        },
+        "metrics": {
+            "cpu_percent": cpu_usage,
+            "ram": {"used_go": ram_used, "total_go": ram_total, "percent": ram.percent},
+            "disk_root": {"used_go": disk_used, "total_go": disk_total, "percent": disk.percent}
+        }
+    }
+
+    # --- AFFICHAGE CLASSIQUE ---
     print("-" * 40)
     print(f"OS       : {os_name} (Kernel {os_release})")
     print(f"Uptime   : {heures}h {minutes}m")
@@ -49,6 +70,31 @@ def monitor_linux():
     print(f"RAM      : {ram_used}Go / {ram_total}Go ({ram.percent}%)")
     print(f"Disque / : {disk_used}Go / {disk_total}Go ({disk.percent}%)")
     print("-" * 40)
+    
+    # --- GESTION JSON ---
+    choix_json = input("\nExporter ce rapport en JSON ? (o/n) : ")
+    
+    if choix_json.lower() == 'o':
+        # Affichage Console
+        json_str = json.dumps(data_report, indent=4)
+        print("\n--- APERÇU JSON ---")
+        print(json_str)
+        
+        # Sauvegarde Fichier
+        save = input("Sauvegarder dans un fichier ? (o/n) : ")
+        if save.lower() == 'o':
+            folder = "rapports_json"
+            os.makedirs(folder, exist_ok=True)
+            
+            # CORRECTION ICI : datetime.datetime.now() (C'était déjà bon, mais on confirme)
+            filename = f"{folder}/report_linux_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            try:
+                with open(filename, "w") as f:
+                    f.write(json_str)
+                print(f"[OK] Fichier créé : {filename}")
+            except Exception as e:
+                print(f"[ERREUR] Écriture impossible : {e}")
+
     input("\nAppuyez sur Entrée pour revenir...")
 
 # ==========================================
@@ -61,8 +107,10 @@ def get_windows_uptime():
         result = subprocess.run(cmd, capture_output=True, text=True)
         boot_str = result.stdout.strip()
         
-        boot_time = datetime.strptime(boot_str, "%Y-%m-%d %H:%M:%S")
-        uptime = datetime.now() - boot_time
+        # CORRECTION ICI : datetime.datetime.strptime
+        boot_time = datetime.datetime.strptime(boot_str, "%Y-%m-%d %H:%M:%S")
+        # CORRECTION ICI : datetime.datetime.now()
+        uptime = datetime.datetime.now() - boot_time
         
         print(f"Dernier démarrage : {boot_str}")
         print(f"Uptime : {uptime.days}j {uptime.seconds // 3600}h {(uptime.seconds % 3600) // 60}m")

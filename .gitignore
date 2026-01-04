@@ -1,6 +1,9 @@
-.gitignore
 venv/
 exports_csv_wms/
 backups_sql/
 __pycache__/
 rapports_json/
+build/
+dist/
+NTL_SysToolbox.spec
+.gitignore
