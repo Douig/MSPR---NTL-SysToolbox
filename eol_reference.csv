@@ -1,83 +1,144 @@
 type;version;eol_date
-<<<<<<< HEAD
-OS;11;2025-11-11
-OS;10;2025-10-14
-OS;Ubuntu 20.04;2025-04-23
-OS;CentOS 7;2024-06-30
-OS;Windows Server 2012 R2;2023-10-10
-Logiciel;Firefox 115;2024-10-01
-Logiciel;Python 3.8;2024-10-07
-Logiciel;Microsoft 365;2025-05-20
-Logiciel;MySQL 5.7;2023-10-21
-Logiciel;VMware ESXi 6.5;2022-10-15
-=======
-# --- SYSTEMES D'EXPLOITATION ---
+# ==========================================
+# SYSTÈMES D'EXPLOITATION (OS)
+# ==========================================
+OS;Windows 7;2020-01-14
+OS;Windows 8.1;2023-01-10
 OS;Windows 10;2025-10-14
-OS;Windows 11;2025-11-11
+OS;Windows 11;2028-11-11
 OS;Windows Server 2012;2023-10-10
 OS;Windows Server 2016;2027-01-12
 OS;Windows Server 2019;2029-01-09
+OS;Ubuntu 16.04;2021-04-30
+OS;Ubuntu 18.04;2023-05-31
 OS;Ubuntu 20.04;2025-04-23
 OS;Ubuntu 22.04;2027-04-01
-OS;CentOS 7;2024-06-30
+OS;Ubuntu 24.04;2029-04-01
+OS;Debian 10;2022-08-01
 OS;Debian 11;2024-08-14
-# --- RUNTIMES ET LIBRAIRIES (Très important pour Windows) ---
+OS;Debian 12;2028-06-10
+
+# ==========================================
+# CŒUR SYSTÈME LINUX (MATCHES DPKG)
+# ==========================================
+Logiciel;libc6;2027-12-31
+Logiciel;bash;2028-01-01
+Logiciel;coreutils;2027-12-31
+Logiciel;dpkg;2027-12-31
+Logiciel;apt;2027-06-01
+Logiciel;systemd;2026-12-31
+Logiciel;util-linux;2026-03-01
+Logiciel;findutils;2026-12-31
+Logiciel;grep;2027-01-01
+Logiciel;sed;2027-01-01
+Logiciel;gzip;2028-01-01
+Logiciel;tar;2028-01-01
+Logiciel;bzip2;2025-01-01
+Logiciel;xz-utils;2026-12-31
+Logiciel;zlib1g;2026-01-01
+Logiciel;login;2027-01-01
+Logiciel;passwd;2027-01-01
+Logiciel;adduser;2028-01-01
+Logiciel;hostname;2028-01-01
+Logiciel;procps;2026-06-01
+Logiciel;kmod;2026-01-01
+Logiciel;udev;2026-06-01
+Logiciel;dbus;2026-08-01
+Logiciel;sudo;2028-01-01
+
+# ==========================================
+# RÉSEAU ET SÉCURITÉ
+# ==========================================
+Logiciel;openssl 1.0;2019-09-10
+Logiciel;openssl 1.1;2023-09-11
+Logiciel;openssl 3.0;2026-09-07
+Logiciel;libssl;2026-01-15
+Logiciel;openssh;2027-01-01
+Logiciel;gnupg;2026-12-31
+Logiciel;ca-certificates;2028-01-01
+Logiciel;apparmor;2026-02-15
+Logiciel;ufw;2026-06-01
+Logiciel;iptables;2025-12-31
+Logiciel;iproute2;2026-04-01
+Logiciel;net-tools;2024-01-01
+Logiciel;curl;2027-01-01
+Logiciel;wget;2027-01-01
+Logiciel;tcpdump;2026-01-01
+Logiciel;wireshark;2025-06-01
+
+# ==========================================
+# DÉVELOPPEMENT ET COMPILATION
+# ==========================================
+Logiciel;gcc-9;2023-05-01
+Logiciel;gcc-10;2024-05-01
+Logiciel;gcc-11;2026-05-01
+Logiciel;gcc-12;2027-05-01
+Logiciel;make;2028-01-01
+Logiciel;binutils;2027-01-01
+Logiciel;git;2027-01-01
+Logiciel;cmake;2027-06-01
+Logiciel;python2.7;2020-01-01
+Logiciel;python3.6;2021-12-23
+Logiciel;python3.8;2024-10-14
+Logiciel;python3.10;2026-10-04
+Logiciel;python3.12;2028-10-02
+Logiciel;perl;2026-05-01
+Logiciel;ruby;2025-03-31
+Logiciel;openjdk-8;2023-05-01
+Logiciel;openjdk-11;2026-09-30
+Logiciel;openjdk-17;2027-09-30
+Logiciel;nodejs 14;2023-04-30
+Logiciel;nodejs 16;2023-09-11
+Logiciel;nodejs 18;2025-04-30
+Logiciel;nodejs 20;2026-04-30
+
+# ==========================================
+# WINDOWS SPECIFIC (SANS ÉQUIVALENT DPKG)
+# ==========================================
+Logiciel;Visual C++ 2005;2016-04-12
+Logiciel;Visual C++ 2008;2018-04-10
 Logiciel;Visual C++ 2010;2020-07-14
 Logiciel;Visual C++ 2012;2023-01-10
 Logiciel;Visual C++ 2013;2024-04-09
 Logiciel;Visual C++ 2015;2025-10-14
 Logiciel;Visual C++ 2017;2027-04-13
-Logiciel;Visual C++ 2019;2029-04-10
-Logiciel;Visual C++ 2022;2032-01-13
-Logiciel;Adobe Flash Player;2020-12-31
-Logiciel;Java 8;2030-12-31
-Logiciel;Java 11;2026-09-30
-Logiciel;Java 17;2027-09-30
+Logiciel;.NET Framework 3.5;2028-10-10
 Logiciel;.NET Framework 4.5;2016-01-12
-Logiciel;.NET Framework 4.6;2022-04-26
+Logiciel;.NET Framework 4.8;2029-01-01
+Logiciel;.NET 5.0;2022-05-10
 Logiciel;.NET 6.0;2024-11-12
 Logiciel;.NET 7.0;2024-05-14
 Logiciel;.NET 8.0;2026-11-10
-# --- DEVELOPPEMENT ---
-Logiciel;Python 3.8;2024-10-07
-Logiciel;Python 3.9;2025-10-05
-Logiciel;Python 3.10;2026-10-04
-Logiciel;Python 3.11;2027-10-24
-Logiciel;Python 3.12;2028-10-02
-Logiciel;Python 3.13;2029-10-31
-Logiciel;Node.js 18;2025-04-30
-Logiciel;Node.js 20;2026-04-30
-Logiciel;Node.js 22;2027-04-30
-Logiciel;Visual Studio 2017;2027-04-13
-Logiciel;Visual Studio 2019;2029-04-10
-Logiciel;Visual Studio 2022;2032-01-13
-Logiciel;Git;2026-01-01
-# --- NAVIGATEURS ET BUREAUTIQUE ---
-Logiciel;Google Chrome;2025-12-31
-Logiciel;Microsoft Edge;2025-12-31
-Logiciel;Firefox 115;2024-10-01
+Logiciel;DirectX 9;2010-06-01
+
+# ==========================================
+# APPLICATIONS BUREAUTIQUE ET WEB
+# ==========================================
 Logiciel;Microsoft 365;2025-05-20
 Logiciel;Office 2016;2025-10-14
 Logiciel;Office 2019;2025-10-14
 Logiciel;Office 2021;2026-10-13
-Logiciel;Adobe Acrobat 2017;2022-06-01
+Logiciel;Google Chrome;2025-12-31
+Logiciel;Firefox;2026-03-01
+Logiciel;Microsoft Edge;2026-01-01
+Logiciel;Thunderbird;2026-01-01
+Logiciel;LibreOffice;2025-12-31
 Logiciel;Adobe Acrobat 2020;2025-06-01
-# --- OUTILS SYSTEME ET RESEAU ---
-Logiciel;Wireshark 3;2023-05-22
-Logiciel;Wireshark 4;2025-06-01
-Logiciel;WinSCP 5;2024-12-31
-Logiciel;WinSCP 6;2026-12-31
-Logiciel;VMware Workstation 16;2022-12-15
-Logiciel;VMware Workstation 17;2025-12-31
-Logiciel;VirtualBox 6;2022-12-31
-Logiciel;VirtualBox 7;2026-12-31
-Logiciel;TeamViewer 15;2025-12-31
-Logiciel;Cisco Packet Tracer 7;2022-12-31
-Logiciel;Cisco Packet Tracer 8;2026-12-31
-# --- PILOTES ET MATÉRIEL ---
-Logiciel;NVIDIA;2026-01-01
-Logiciel;CUDA 11;2024-12-31
-Logiciel;CUDA 12;2026-12-31
-Logiciel;HP Connection;2025-12-31
-Logiciel;Bitdefender;2026-07-01
->>>>>>> cd6f5afa922f5f0375132b3d47d5013670449214
+Logiciel;Adobe Flash Player;2020-12-31
+Logiciel;VLC Media Player;2026-12-31
+
+# ==========================================
+# SERVEURS ET BASES DE DONNÉES
+# ==========================================
+Logiciel;apache2;2026-12-31
+Logiciel;nginx;2026-06-01
+Logiciel;mysql-server-5.7;2023-10-21
+Logiciel;mysql-server-8.0;2026-04-30
+Logiciel;mariadb;2026-07-06
+Logiciel;postgresql-12;2024-11-14
+Logiciel;postgresql-13;2025-11-13
+Logiciel;postgresql-14;2026-11-12
+Logiciel;redis;2026-01-01
+Logiciel;docker-ce;2025-12-31
+Logiciel;containerd;2026-03-01
+Logiciel;mongodb-4.4;2024-02-29
