@@ -4,16 +4,14 @@ import csv
 import json
 import os
 import subprocess
-import re
 from datetime import datetime
 
 # --- CONFIGURATION ---
 Fichier_EOL = "eol_reference.csv"
-Fichier_Inventaire = "inventaire_complet.csv" # Scan brut
-Fichier_Rapport_Final = "rapport_audit"        # Nom de base des rapports
+Fichier_Rapport_Final = "rapport_audit"
 
 def OS_Info():
-    """Identifie l'OS et la version précise"""
+    """Identifie l'OS et la version précise."""
     os_name = "Windows" if sys.platform == "win32" else "Linux"
     version = platform.release()
     if os_name == "Linux":
@@ -22,12 +20,12 @@ def OS_Info():
                 for line in f:
                     if line.startswith("PRETTY_NAME"):
                         version = line.split("=")[1].strip().strip('"')
-        except:
+        except Exception:
             version = platform.version()
     return {"os": os_name, "version": version}
 
 def scanner_applications_locales():
-    """Scanne le système pour lister toutes les applications installées"""
+    """Scanne le système pour lister les applications installées."""
     apps = []
     nom_machine = platform.node()
     
@@ -46,10 +44,10 @@ def scanner_applications_locales():
                         sub_key = winreg.OpenKey(key, sub_key_name)
                         name = winreg.QueryValueEx(sub_key, "DisplayName")[0]
                         try:
-                            version = winreg.QueryValueEx(sub_key, "DisplayVersion")[0]
+                            ver = winreg.QueryValueEx(sub_key, "DisplayVersion")[0]
                         except:
-                            version = "Indéterminée"
-                        apps.append({"nom_machine": nom_machine, "version": f"{name} {version}"})
+                            ver = "Indéterminée"
+                        apps.append({"nom_machine": nom_machine, "version": f"{name} {ver}"})
                     except: continue
             except: continue
     else:
@@ -57,43 +55,53 @@ def scanner_applications_locales():
         try:
             result = subprocess.check_output(["dpkg-query", "-W", "-f=${Package};${Version}\n"], text=True)
             for line in result.strip().split('\n'):
-                name, ver = line.split(';')
-                apps.append({"nom_machine": nom_machine, "version": f"{name} {ver}"})
-        except: pass
+                if ';' in line:
+                    name, ver = line.split(';')
+                    apps.append({"nom_machine": nom_machine, "version": f"{name} {ver}"})
+        except Exception as e:
+            print(f"[!] Erreur scan Linux: {e}")
     return apps
 
 def audit_obsolescence(apps_scannees):
-    """Compare le scan au référentiel et FILTRE les inconnus"""
+    """Compare le scan au référentiel et filtre les composants connus."""
     if not os.path.exists(Fichier_EOL):
         print(f"Erreur : Le fichier {Fichier_EOL} est introuvable.")
         return []
 
-    # Chargement du référentiel (Liste Blanche)
+    # Chargement du référentiel avec protection contre les conflits Git
     ref_eol = []
-    with open(Fichier_EOL, mode='r', encoding='utf-8') as f:
-        # On filtre les lignes de commentaires commençant par '#'
-        filtered_f = filter(lambda row: row.strip() and not row.startswith('#'), f)
-        ref_eol = list(csv.DictReader(filtered_f, delimiter=';'))
+    try:
+        with open(Fichier_EOL, mode='r', encoding='utf-8') as f:
+            # On ignore les lignes vides, les commentaires (#) et les marqueurs de conflit Git (<<<, ===, >>>)
+            filtered_f = [
+                line for line in f 
+                if line.strip() 
+                and not line.startswith('#') 
+                and not any(marker in line for marker in ["<<<<", "====", ">>>>"])
+            ]
+            reader = csv.DictReader(filtered_f, delimiter=';')
+            ref_eol = list(reader)
+    except Exception as e:
+        print(f"Erreur lors de la lecture du CSV : {e}")
+        return []
 
     results = []
     today = datetime.now().date()
 
     for app in apps_scannees:
         for ref in ref_eol:
-            # Match partiel : On vérifie si le nom simplifié est dans le nom complet
+            # Match partiel : vérifie si la version du CSV est contenue dans le nom scanné
             if ref['version'].lower() in app['version'].lower():
                 try:
-                    eol_dt = datetime.strptime(ref['eol_date'], "%Y-%m-%d").date()
+                    eol_dt = datetime.strptime(ref['eol_date'].strip(), "%Y-%m-%d").date()
                     diff = (eol_dt - today).days
                     
-                    status = "OK : Supporté"
-                    level = 2
                     if diff < 0:
-                        status = "CRITIQUE : Obsolète"
-                        level = 0
+                        status, level = "CRITIQUE : Obsolète", 0
                     elif diff < 180:
-                        status = "WARNING : Fin proche"
-                        level = 1
+                        status, level = "WARNING : Fin proche", 1
+                    else:
+                        status, level = "OK : Supporté", 2
 
                     results.append({
                         "machine": app['nom_machine'],
@@ -102,16 +110,15 @@ def audit_obsolescence(apps_scannees):
                         "statut": status,
                         "niveau": level
                     })
-                    break # On arrête de chercher pour cette application dès qu'un match est trouvé
-                except:
+                    break 
+                except Exception:
                     continue
     
-    # Tri par gravité (Critique en premier)
     results.sort(key=lambda x: x['niveau'])
     return results
 
 def generer_rapports(results):
-    """Génère les livrables CSV et JSON"""
+    """Génère les rapports CSV et JSON."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     csv_fn = f"{Fichier_Rapport_Final}_{timestamp}.csv"
     json_fn = f"{Fichier_Rapport_Final}_{timestamp}.json"
@@ -139,18 +146,25 @@ def generer_rapports(results):
     return csv_fn, json_fn
 
 if __name__ == "__main__":
-    print("--- NTL-SysToolbox : Audit d'Obsolescence Filtré ---")
+    print("\n--- NTL-SysToolbox : Audit d'Obsolescence ---")
     
     # 1. Info Système
-    local = OS_Info()
-    print(f"[*] Système détecté : {local['version']}")
+    local_os = OS_Info()
+    print(f"[*] OS détecté : {local_os['version']}")
     
-    # 2. Scan
+    # 2. Scan des applications
     raw_apps = scanner_applications_locales()
-    print(f"[*] Scan terminé : {len(raw_apps)} éléments trouvés sur le système.")
+    
+    # AJOUT : On insère l'OS dans la liste des éléments à auditer
+    raw_apps.append({
+        "nom_machine": platform.node(), 
+        "version": f"OS {local_os['version']}"
+    })
+    
+    print(f"[*] Scan terminé : {len(raw_apps)} éléments (OS + Logiciels) à analyser.")
     
     # 3. Audit & Filtrage
-    print(f"[*] Filtrage selon {Fichier_EOL}...")
+    print(f"[*] Comparaison avec {Fichier_EOL}...")
     final_audit = audit_obsolescence(raw_apps)
     
     # 4. Sortie
@@ -158,14 +172,12 @@ if __name__ == "__main__":
         c_file, j_file = generer_rapports(final_audit)
         print("\n" + "="*40)
         print(f"AUDIT TERMINÉ AVEC SUCCÈS")
-        print(f"- Éléments importants suivis : {len(final_audit)}")
-        print(f"- Rapport CSV : {c_file}")
-        print(f"- Rapport JSON : {j_file}")
+        print(f"- Éléments suivis trouvés : {len(final_audit)}")
+        print(f"- Rapports : {c_file} | {j_file}")
         
-        # Petit résumé console
         crit = len([r for r in final_audit if r['niveau'] == 0])
         warn = len([r for r in final_audit if r['niveau'] == 1])
         print(f"\nRésumé : {crit} CRITIQUE(S), {warn} WARNING(S)")
         print("="*40)
     else:
-        print("\n[!] Aucun composant du référentiel n'a été trouvé sur cette machine.")
+        print("\n[!] Aucun composant du référentiel n'a été trouvé.")
