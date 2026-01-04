@@ -7,7 +7,7 @@ import json
 import datetime 
 
 # ==========================================
-# PARTIE 1 : LINUX (Mise à jour avec Export JSON)
+# PARTIE 1 : LINUX
 # ==========================================
 def monitor_linux():
     print("\n--- ANALYSE SYSTEME LINUX ---")
