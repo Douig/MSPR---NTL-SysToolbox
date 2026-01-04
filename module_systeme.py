@@ -98,8 +98,17 @@ def monitor_linux():
     input("\nAppuyez sur Entrée pour revenir...")
 
 # ==========================================
-# PARTIE 2 : WINDOWS (Fonctionne avec PowerShell)
+# PARTIE 2 : WINDOWS (PowerShell)
 # ==========================================
+
+def get_windows_version():
+    try:
+        cmd = ["powershell", "Get-ComputerInfo | Select-Object OsName, WindowsVersion | ConvertTo-Json"]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        data = json.loads(result.stdout)
+        return {"name": data.get('OsName'), "version": data.get('WindowsVersion')}
+    except Exception:
+        return {"name": "Inconnu", "version": "Inconnu"}
 
 def get_windows_uptime():
     try:
@@ -107,46 +116,40 @@ def get_windows_uptime():
         result = subprocess.run(cmd, capture_output=True, text=True)
         boot_str = result.stdout.strip()
         
-        # CORRECTION ICI : datetime.datetime.strptime
         boot_time = datetime.datetime.strptime(boot_str, "%Y-%m-%d %H:%M:%S")
-        # CORRECTION ICI : datetime.datetime.now()
         uptime = datetime.datetime.now() - boot_time
         
-        print(f"Dernier démarrage : {boot_str}")
-        print(f"Uptime : {uptime.days}j {uptime.seconds // 3600}h {(uptime.seconds % 3600) // 60}m")
+        # On retourne un dictionnaire avec les infos brutes et formatées
+        return {
+            "last_boot": boot_str,
+            "days": uptime.days,
+            "hours": uptime.seconds // 3600,
+            "minutes": (uptime.seconds % 3600) // 60
+        }
     except Exception:
-        print("Erreur Uptime (Non disponible)")
-
-def get_windows_version():
-    try:
-        cmd = ["powershell", "Get-ComputerInfo | Select-Object OsName, WindowsVersion | ConvertTo-Json"]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        data = json.loads(result.stdout)
-        print(f"Système : {data.get('OsName')}")
-        print(f"Version : {data.get('WindowsVersion')}")
-    except Exception:
-        print("Erreur Version")
+        return None
 
 def get_cpu_usage():
     try:
-        # Note: Sur Windows Anglais, remplacer 'processeur' par 'Processor'
+        # Attention : "processeur" fonctionne sur Windows FR. Sur EN mettre "Processor"
         cmd = ["powershell", "(Get-Counter '\\processeur(_total)\\% temps processeur').CounterSamples.CookedValue"]
         result = subprocess.run(cmd, capture_output=True, text=True)
         val = round(float(result.stdout.strip().replace(",", ".")), 2)
-        print(f"CPU utilisé : {val} %")
+        return val
     except Exception:
-        print("Erreur CPU (Vérifiez la langue de l'OS)")
+        return 0.0
 
 def get_ram_usage():
     try:
         cmd = ["powershell", '(Get-Counter "\\Mémoire\\Pourcentage d’octets dédiés utilisés").CounterSamples.CookedValue']
         result = subprocess.run(cmd, capture_output=True, text=True)
         val = round(float(result.stdout.strip().replace(",", ".")), 2)
-        print(f"RAM utilisée : {val} %")
+        return val
     except Exception:
-        print("Erreur RAM")
+        return 0.0
 
 def get_disk_usage():
+    disks_list = []
     try:
         cmd = ["powershell", "Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free"]
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -157,10 +160,22 @@ def get_disk_usage():
                 name = parts[0]
                 used = int(parts[1])
                 free = int(parts[2])
-                percent = round((used / (used+free)) * 100, 2)
-                print(f"Disque {name} : {percent}% utilisé")
+                total = used + free
+                percent = round((used / total) * 100, 2)
+                
+                # Conversion en Go pour le JSON
+                used_go = round(used / (1024**3), 2)
+                total_go = round(total / (1024**3), 2)
+                
+                disks_list.append({
+                    "mount_point": name,
+                    "used_go": used_go,
+                    "total_go": total_go,
+                    "percent": percent
+                })
     except Exception:
-        print("Erreur Disque")
+        pass
+    return disks_list
 
 def get_service_status():
     try:
@@ -172,27 +187,82 @@ def get_service_status():
         
         dns = r1.stdout.strip() if r1.stdout.strip() else "Non installé"
         ntds = r2.stdout.strip() if r2.stdout.strip() else "Non installé"
-        return dns, ntds
+        return {"DNS": dns, "ActiveDirectory_NTDS": ntds}
     except:
-        return "Erreur", "Erreur"
+        return {"DNS": "Erreur", "ActiveDirectory_NTDS": "Erreur"}
 
 def monitor_windows():
-    """Fonction principale Windows"""
+    """Fonction principale Windows avec Export JSON"""
     print("\n--- ANALYSE SYSTEME WINDOWS (PowerShell) ---")
     print("(Patientez quelques secondes...)")
     
-    get_windows_version()
+    # 1. Collecte des données via les fonctions modifiées
+    os_info = get_windows_version()
+    uptime_info = get_windows_uptime()
+    cpu = get_cpu_usage()
+    ram = get_ram_usage()
+    disks = get_disk_usage()
+    services = get_service_status()
+
+    # 2. Construction du Dictionnaire global pour le JSON
+    data_report = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "os_info": os_info,
+        "uptime": uptime_info,
+        "metrics": {
+            "cpu_percent": cpu,
+            "ram_percent": ram,
+            "disks": disks
+        },
+        "services": services
+    }
+
+    # 3. Affichage Console (basé sur les données collectées)
     print("-" * 30)
-    get_windows_uptime()
-    print("-" * 30)
-    get_cpu_usage()
-    get_ram_usage()
-    print("-" * 30)
-    get_disk_usage()
-    print("-" * 30)
+    print(f"Système : {os_info['name']}")
+    print(f"Version : {os_info['version']}")
     
-    dns, ntds = get_service_status()
-    print(f"Service DNS  : {dns}")
-    print(f"Service NTDS : {ntds} (Active Directory)")
+    print("-" * 30)
+    if uptime_info:
+        print(f"Dernier démarrage : {uptime_info['last_boot']}")
+        print(f"Uptime : {uptime_info['days']}j {uptime_info['hours']}h {uptime_info['minutes']}m")
+    else:
+        print("Erreur Uptime")
+
+    print("-" * 30)
+    print(f"CPU utilisé : {cpu} %")
+    print(f"RAM utilisée : {ram} %")
+
+    print("-" * 30)
+    if disks:
+        for d in disks:
+            print(f"Disque {d['mount_point']} : {d['percent']}% utilisé ({d['used_go']}Go / {d['total_go']}Go)")
+    else:
+        print("Aucun disque détecté ou erreur.")
+
+    print("-" * 30)
+    print(f"Service DNS  : {services['DNS']}")
+    print(f"Service NTDS : {services['ActiveDirectory_NTDS']} (Active Directory)")
+
+    # 4. Gestion JSON (Interactif)
+    choix_json = input("\nExporter ce rapport en JSON ? (o/n) : ")
     
+    if choix_json.lower() == 'o':
+        json_str = json.dumps(data_report, indent=4)
+        print("\n--- APERÇU JSON ---")
+        print(json_str)
+        
+        save = input("Sauvegarder dans un fichier ? (o/n) : ")
+        if save.lower() == 'o':
+            folder = "rapports_json"
+            os.makedirs(folder, exist_ok=True)
+            
+            filename = f"{folder}/report_windows_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            try:
+                with open(filename, "w", encoding='utf-8') as f:
+                    f.write(json_str)
+                print(f"[OK] Fichier créé : {filename}")
+            except Exception as e:
+                print(f"[ERREUR] Écriture impossible : {e}")
+
     input("\nAppuyez sur Entrée pour revenir...")

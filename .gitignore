@@ -7,3 +7,4 @@ build/
 dist/
 NTL_SysToolbox.spec
 .gitignore
+NTL-SysToolbox.spec
